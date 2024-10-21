@@ -6,37 +6,52 @@
     <title>Gráfico con Chart.js y Firebase</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
-    <script src="https://cdn.firebase.com/libs/firebase-js/8.2.1/firebase.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-database-compat.js"></script>
 </head>
 <body>
     <div class="container">
         <h1>Gráfico con Chart.js y Firebase</h1>
         <canvas id="myChart" width="400" height="200"></canvas>
-        <script>
-            // Inicializamos Firebase
-            var firebaseConfig = {
-                apiKey: "YOUR_API_KEY",
-                authDomain: "YOUR_AUTH_DOMAIN",
-                databaseURL: "YOUR_DATABASE_URL",
-                projectId: "YOUR_PROJECT_ID",
-                storageBucket: "YOUR_STORAGE_BUCKET",
-                messagingSenderId: "YOUR_MESSAGING_SENDER_ID"
-            };
-            firebase.initializeApp(firebaseConfig);
 
-            // Obtenemos los datos de Firebase
-            var db = firebase.database();
-            db.ref("your_data_path").on("value", function(snapshot) {
-                var data = snapshot.val();
+        <script >
+            
+            // TODO: Add SDKs for Firebase products that you want to use
+            // https://firebase.google.com/docs/web/setup#available-libraries
+            
+            // Your web app's Firebase configuration
+            const firebaseConfig = {
+              apiKey: "",
+              authDomain: "",
+              projectId: "",
+              storageBucket: "",
+              messagingSenderId: "",
+              appId: ""
+            };
+       // Initialize Firebase
+       firebase.initializeApp(firebaseConfig);
+
+       // Get a reference to the database service
+       const database = firebase.database();
+
+
+         
+       database.ref("entradas").on("value", function(snapshot) {
+                var entrada = snapshot.val();
+                console.log(entrada)
                 // Creamos el gráfico con Chart.js
                 var ctx = document.getElementById("myChart").getContext("2d");
                 var myChart = new Chart(ctx, {
                     type: 'line',
                     data: {
-                        labels: Object.keys(data),
+                        labels: Object.keys(entrada).map(function(key) {
+                            return new Date(entrada[key].timestamp * 1000).toLocaleString();
+                          }),
                         datasets: [{
                             label: 'Valor',
-                            data: Object.values(data),
+                            data:  Object.values(entrada).map(function(value) {
+                                return value.sensor1;
+                              }),
                             backgroundColor: 'rgba(255, 99, 132, 0.2)',
                             borderColor: 'rgba(255, 99, 132, 1)',
                             borderWidth: 1
