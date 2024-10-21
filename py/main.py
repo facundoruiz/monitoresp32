@@ -4,27 +4,24 @@ import machine, network, time, urequests
 from machine import Pin, I2C
 from time import sleep
 import json
+
 import random
 
 # Credenciales WIFI
-ssid = ''
-password = ''
+WIFI_SSID = ''
+WIFI_PASS = ''
 
 # Credenciales Firebase
-firebase_url = ''
-firebase_key = ''
+APP_URL = ""
+APP_KEY = ""
 
 # Configurar el pin GPIO 2 como salida (LED incorporado)
 led = Pin(2, Pin.OUT)
 
-
-
-
 red = network.WLAN(network.STA_IF)
 
 red.active(True)
-red.connect(ssid, password)
-
+red.connect(WIFI_SSID, WIFI_PASS)
 
 while red.isconnected() == False:
   pass
@@ -39,39 +36,52 @@ def reconectar():
     print('Fallo de conexión. Reconectando...')
     time.sleep(10)
     machine.reset()
+    
+# Simular lecturas de sensores
+def simular_lecturas():
+    temperatura = random.uniform(10, 30)
+    humedad = random.uniform(10, 70)
+    return json.dumps({ "sensor1": humedad,   "sensor2": temperatura,  "timestamp": time.time() })
+
+# Función para enviar datos a Firebase
+def enviar_datos(datos):
+    try:
+        # Preparar la URL y los headers
+        url = APP_URL + 'entradas.json?auth=' + APP_KEY
+             
+        # Enviar los datos
+        response = urequests.post(url,  data=datos)
+      
+        if response.status_code == 200:
+            print("Datos enviados exitosamente")
+            return True
+        else:
+            print(f"Error al enviar datos: {response.status_code}")
+            return False
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return False
+    
 
 while True:
     try:
         if (time.time() - ultima_peticion) > intervalo_peticiones:
            
             # Datos a enviar
-            data = {
-                "sensor1": random.randint(0,35),
-                "sensor2": 15.5,
-                "timestamp": time.time()
-            }
-
             # Convertir los datos a formato JSON
-            data_json = json.dumps(data)
-
-            # URL completa para la base de datos
-            url = firebase_url + "/entradas.json?auth=" + firebase_key
-
-            # Enviar los datos a Firebase
-            response = urequests.post(url, data=data_json)
-
+            data_json = simular_lecturas()
+           
+            response = enviar_datos(data_json)
+           
             # Verificar la respuesta
-            if response.status_code == 200:
+            if response:
                 led.on()  # Encender el LED
-                print("Datos enviados correctamente a Firebase")
                 sleep(1)  # Esperar 1 segundo
-            else:
-                print("Error al enviar datos a Firebase")
+                          
                 
             led.off()  # Apagar el LED    
 
-            # Cerrar la conexión
-            response.close()
             ultima_peticion = time.time()
     except OSError as e:
         reconectar()
+        
