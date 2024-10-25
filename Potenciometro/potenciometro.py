@@ -14,7 +14,9 @@ WIFI_PASS = ''
 # Credenciales Firebase
 APP_URL = ""
 APP_KEY = ""
-
+# Datos usuario dentro de firebase
+USER_EMAIL = "tu_correo_electronico@gmail.com"
+USER_PASS = "tu_contraseña"
 
 potenciometro = ADC(34)  # Definimos el pin que se va a usar como ADC
 led = Pin(2,Pin.OUT)
@@ -42,13 +44,41 @@ def reconectar():
     print('Fallo de conexión. Reconectando...')
     sleep(10)
 
+def autenticar():
+    try:
+        url = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + APP_KEY
+        data = {
+            "email": USER_EMAIL,
+            "password": USER_PASS,
+            "returnSecureToken": True
+        }
+        headers = {"Content-Type": "application/json"}
+        response = post(url, data=dumps(data), headers=headers)
+        if response.status_code == 200:
+            token_id = response.json()["idToken"]
+            refresh_token = response.json()["refreshToken"]
+            return token_id, refresh_token
+        else:
+            raise Exception(f"Error {response.status_code}: {response.text}")
+    except Exception as e:
+        print(f"Error de autenticación: {str(e)}")
+        return None, None
 
 
-
+# Función para enviar datos a Firebase
 def enviar_datos(datos):
     try:
-        url = APP_URL + 'entradas.json?auth=' + APP_KEY
-        response = post(url, data=datos, timeout=10)
+
+        token_id, refresh_token = autenticar()
+        if token_id is None:
+            print("Autenticación fallida")
+            exit()
+
+        url = APP_URL + 'entradas.json?auth=' + token_id
+        headers = {"Authorization": f"Bearer {token_id}"}
+        # Enviar los datos
+        response = post(url, data=datos, headers=headers, timeout=10)
+
         if response.status_code != 200:
           raise Exception(f"Error {response.status_code}: {response.text}")
         
