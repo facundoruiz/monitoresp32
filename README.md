@@ -73,3 +73,9 @@ En esta práctica, se ha demostrado cómo conectar un ESP32 con Firebase utiliza
 [Usa un Potenciómetro con el ESP32](https://youtu.be/krHj8Kfthgo?si=xcR5FcaZJbx2Tebw)
 
 [SERIE ESP32 # 6: FIREBASE - ESP32 - REAL TIME DATABASE](https://youtu.be/_2gi9VHZ-q0?si=YCpGBHhC6Sl4K1t9)
+
+[código de Conexión](https://raw.githubusercontent.com/ComputadorasySensores/Capitulo45/refs/heads/main/main.py)
+
+[firebase authentication](https://www.telerik.com/blogs/firebase-authentication-using-custom-token)
+
+[esp32 and firebase](https://medium.com/firebase-developers/getting-started-with-esp32-and-firebase-1e7f19f63401)

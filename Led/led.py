@@ -1,25 +1,20 @@
-
-
 from network import WLAN,STA_IF
 from urequests import post
-from machine import ADC,Pin # importamos los módulos machine de ADC y de Pin
+from machine import Pin
 from time import sleep,time
 from json import dumps
-import gc
+import random
 
 # Credenciales WIFI
-WIFI_SSID = ''
-WIFI_PASS = ''
+WIFI_SSID = ""
+WIFI_PASS = ""
 
 # Credenciales Firebase
 APP_URL = ""
 APP_KEY = ""
-
-
-potenciometro = ADC(34)  # Definimos el pin que se va a usar como ADC
-led = Pin(2,Pin.OUT)
-potenciometro.atten(ADC.ATTN_11DB)  # Configuramos el rango de voltaje a 3,6v para tener mayor resolución
-
+# Datos usuario dentro de firebase
+USER_EMAIL = ""
+USER_PASS = ""
 
 # Configurar el pin GPIO 2 como salida (LED incorporado)
 led = Pin(2, Pin.OUT)
@@ -40,18 +35,51 @@ intervalo_peticiones = 30
 
 def reconectar():
     print('Fallo de conexión. Reconectando...')
-    sleep(10)
+    time.sleep(10)
+    machine.reset()
+ 
+def autenticar():
+    try:
+        url = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + APP_KEY
+        data = {
+            "email": USER_EMAIL,
+            "password": USER_PASS,
+            "returnSecureToken": True
+        }
+        headers = {"Content-Type": "application/json"}
+        response = post(url, data=dumps(data), headers=headers)
+        if response.status_code == 200:
+            token_id = response.json()["idToken"]
+            refresh_token = response.json()["refreshToken"]
+            return token_id, refresh_token
+        else:
+            raise Exception(f"Error {response.status_code}: {response.text}")
+    except Exception as e:
+        print(f"Error de autenticación: {str(e)}")
+        return None, None
+       
+# Simular lecturas de sensores
+def simular_lecturas():
+    temperatura = random.uniform(10, 30)
+    humedad = random.uniform(10, 70)
+    return dumps({ "sensor1": humedad,   "sensor2": temperatura,  "timestamp": time() })
 
-
-
-
+# Función para enviar datos a Firebase
 def enviar_datos(datos):
     try:
-        url = APP_URL + 'entradas.json?auth=' + APP_KEY
-        response = post(url, data=datos, timeout=10)
+        token_id, refresh_token = autenticar()
+        if token_id is None:
+            print("Autenticación fallida")
+            exit()
+
+        url = APP_URL + 'entradas.json?auth=' + token_id
+        headers = {"Authorization": f"Bearer {token_id}"}
+        # Enviar los datos
+        response = post(url, data=datos, headers=headers, timeout=10)
+       
+              
         if response.status_code != 200:
           raise Exception(f"Error {response.status_code}: {response.text}")
-        
         return True
     except OSError as e:
         print(f"Error de conexión: {str(e)}")
@@ -59,32 +87,26 @@ def enviar_datos(datos):
     except Exception as e:
         print(f"Error: {str(e)}")
         return False
-
-
-intentos_reconexión = 0
-max_intentos_reconexión = 5
+    
 
 while True:
     try:
-        v = potenciometro.read()
-        sleep(1)
-        led.off()
-        if (v > 100):
-            data_json = dumps({"sensor1": v, "sensor2": 0, "timestamp": time()})
+        if (time() - ultima_peticion) > intervalo_peticiones:
+           
+            # Datos a enviar
+            # Convertir los datos a formato JSON
+            data_json = simular_lecturas()
+           
             response = enviar_datos(data_json)
+           
+            # Verificar la respuesta
             if response:
-                led.on()
-                sleep(0.5)
-                led.off()
-    except Exception as e:
-        print(f"Error: {str(e)}")
-        if intentos_reconexión < max_intentos_reconexión:
-            intentos_reconexión += 1
-            print(f"Reconectando... (Intento {intentos_reconexión}/{max_intentos_reconexión})")
-            sleep(10)
-        else:
-            print("Demasiados intentos de reconexión. Deteniendo el programa.")
-            break
+                led.on()  # Encender el LED
+                sleep(1)  # Esperar 1 segundo
+                          
+                
+            led.off()  # Apagar el LED    
 
-    # Liberar memoria no utilizada
-    gc.collect()
+            ultima_peticion = time()
+    except OSError as e:
+        reconectar()
