@@ -3,3 +3,4 @@ firebase-debug.log
 dashboard/env.js
 .env
 main.py
+integrador_final_micropython.py
