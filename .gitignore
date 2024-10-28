@@ -4,3 +4,6 @@ dashboard/env.js
 .env
 main.py
 integrador_final_micropython.py
+wifi.dat.enc
+Wifi/claude.py
+Wifi/gpt.py
