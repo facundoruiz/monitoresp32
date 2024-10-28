@@ -1,4 +1,4 @@
-# Enhanced WiFi Manager for ESP32
+# Conector WiFi para ESP32
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![Platform ESP32](https://img.shields.io/badge/platform-ESP32-blue.svg)
 ![MicroPython](https://img.shields.io/badge/MicroPython-Latest-green.svg)
