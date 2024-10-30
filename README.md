@@ -3,6 +3,10 @@
 
 ![logo](/Image%202024-10-20%20at%2023.08.49.jpeg)
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![Platform ESP32](https://img.shields.io/badge/platform-ESP32-blue.svg)
+![MicroPython](https://img.shields.io/badge/MicroPython-Latest-green.svg)
+
 ## Práctica: Conexión ESP32 con Firebase utilizando MicroPython
 ### Objetivo:
 Conectar un ESP32 DevKit1 con Firebase utilizando MicroPython, simular lecturas de sensores y visualizar los datos en una gráfica web.
@@ -79,3 +83,19 @@ En esta práctica, se ha demostrado cómo conectar un ESP32 con Firebase utiliza
 [firebase authentication](https://www.telerik.com/blogs/firebase-authentication-using-custom-token)
 
 [esp32 and firebase](https://medium.com/firebase-developers/getting-started-with-esp32-and-firebase-1e7f19f63401)
+
+# Contribución
+
+1. Fork el repositorio
+2. Cree una rama para su característica (`git checkout -b feature/mejoras`)
+3. Commit sus cambios (`git commit -m 'Add algunas mejoras'`)
+4. Push a la rama (`git push origin feature/mejoras`)
+5. Abra un Pull Request
+
+## Licencia
+
+Distribuido bajo la Licencia MIT. Ver `LICENSE` para más información.
+
+## Contacto
+
+Facundo Ruiz - [@el_facu](https://x.com/el_facu)
