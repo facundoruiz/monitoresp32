@@ -206,7 +206,7 @@ class ConectorWIFI:
                 if self.wlan_sta.isconnected():
                     print(f"\nConectado a WiFi: {ssid}")
                     print("Configuración de red:", self.wlan_sta.ifconfig())
-                    return True
+                    return self.wlan_sta.ifconfig()[0]
                 sleep(0.5)
 
             # Desconectar si falla y esperar antes del próximo intento
