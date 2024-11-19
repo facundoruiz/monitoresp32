@@ -246,8 +246,8 @@ def main():
             ble.active(True)
         
         # Conectar WiFi
-        ip = connect_wifi()
-        print(f"Servidor web disponible en http://{ip}")
+#         ip = connect_wifi()
+#         print(f"Servidor web disponible en http://{ip}")
         
         # Configurar BLE
         ble.irq(ble_scan_callback)
@@ -257,7 +257,7 @@ def main():
         start_ble_scan()
         
         # Iniciar servidor web
-        web_server(ip)
+#         web_server(ip)
         
     except Exception as e:
         print("Error en main:", e)

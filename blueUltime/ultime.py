@@ -5,14 +5,6 @@ import time
 import math
 from machine import reset
 from conector_wifi import ConectorWIFI
-
-import ure as re
-import ubluetooth
-
-import ubinascii
-import time
-from machine import reset
-from conector_wifi import ConectorWIFI
 from micropython import const
 
 # Global variables

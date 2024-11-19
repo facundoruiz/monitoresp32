@@ -6,27 +6,17 @@ from json import dumps,loads
 from machine import  unique_id
 
 class ConectorWIFI:
-    def __init__(self, ap_ssid='WifiManager', ap_password='wifimanager', debug=False):
+    def __init__(self, ssid='WifiManager', password='wifimanager', debug=False):
         # Inicialización de interfaces
         self.wlan_sta = WLAN(STA_IF)
         self.wlan_ap = WLAN(AP_IF)
         self.wlan_sta.active(True)
-        self.ap_ssid = ap_ssid
-        self.ap_password = ap_password
+        self.ap_ssid = ssid
+        self.ap_password = password
         self.ap_authmode = AUTH_WPA2_PSK
         self.debug = debug
         self.connection_timeout = 15
         self.server_socket = None
-        
-        # Configuración AP
-        self.ap_config = {
-            'essid': self.ap_ssid,
-            'password': self.ap_password,
-            'authmode': self.ap_authmode,
-            'channel': 11,
-            'hidden': False,
-            'max_clients': 10
-        }
 
         # Security features
         self.wifi_credentials = 'wifi.dat.enc'
@@ -216,7 +206,7 @@ class ConectorWIFI:
                 if self.wlan_sta.isconnected():
                     print(f"\nConectado a WiFi: {ssid}")
                     print("Configuración de red:", self.wlan_sta.ifconfig())
-                    return self.wlan_sta.ifconfig()[0]
+                    return self.wlan_ap.ifconfig()[0]
                 sleep(0.5)
 
             # Desconectar si falla y esperar antes del próximo intento
@@ -242,74 +232,4 @@ class ConectorWIFI:
         with open(self.wifi_credentials, 'wb') as file:
             file.write(encrypted)
             
-    def start_dual_mode(self):
-            """Inicia el modo dual (AP + STA)"""
-            # Iniciar AP primero
-            print("Iniciando modo AP...")
-            if not self.start_ap():
-                print("Error al iniciar AP")
-                return False
-                
-            # Intentar conectar como STA
-            print("Iniciando modo STA...")
-            connected = False
-            profiles = self.read_credentials()
-            for ssid, password in profiles.items():
-                if self.wifi_connect(ssid, password):
-                    connected = True
-                    break
-                    
-            if not connected:
-                print("No se pudo conectar como STA, pero AP sigue activo")
-                
-            # Iniciar servidor web independientemente del estado de STA
-            self.setup_web_server()
-            print(f"\nAP activo en '{self.ap_ssid}' - IP: {self.wlan_ap.ifconfig()[0]}")
-            if connected:
-                print(f"Conectado a red WiFi - IP: {self.wlan_sta.ifconfig()[0]}")
-                
-            return True
-
-    def start_ap(self):
-            """Inicia el Access Point manteniendo la configuración actual"""
-            self.wlan_ap.active(True)
-            self.wlan_ap.config(**self.ap_config)
-            sleep(1)
-            
-            if self.wlan_ap.active():
-                if self.debug:
-                    print(f"AP activo en {self.wlan_ap.ifconfig()[0]}")
-                return True
-            return False
-
-    def monitor_connections(self):
-            """Monitorea el estado de las conexiones"""
-            while True:
-                try:
-                    # Manejar conexiones web si hay alguna
-                    if self.server_socket:
-                        self.handle_client_connection()
-                    
-                    # Verificar estado de STA
-                    if not self.wlan_sta.isconnected():
-                        print("Conexión STA perdida, intentando reconectar...")
-                        profiles = self.read_credentials()
-                        for ssid, password in profiles.items():
-                            if self.wifi_connect(ssid, password):
-                                print("Reconexión STA exitosa")
-                                break
-                    
-                    # Verificar estado del AP
-                    if not self.wlan_ap.active():
-                        print("AP inactivo, reiniciando...")
-                        self.start_ap()
-                    
-                    if self.debug:
-                        print(f"Clientes AP conectados: {len(self.wlan_ap.status('stations'))}")
-                        if self.wlan_sta.isconnected():
-                            print(f"IP STA: {self.wlan_sta.ifconfig()[0]}")
-                    
-                except Exception as e:
-                    print(f"Error en monitor_connections: {e}")
-                
-                sleep(5)  # Evitar sobrecarga del sistema
+  
