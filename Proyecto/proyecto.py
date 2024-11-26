@@ -3,7 +3,7 @@ from time import sleep
 from conector_wifi import ConectorWIFI
 
 # Configurar el pin del LED
-led = Pin(2, Pin.OUT)
+led = Pin(5, Pin.OUT)
 
 class CustomWebServer:
     def __init__(self):
@@ -15,7 +15,7 @@ class CustomWebServer:
         """Genera la página web completa"""
         return """
             <!DOCTYPE html>
-            <html>
+            <html lang="es">
             <head>
                 <title>ESP32 WEB</title>
                 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -38,7 +38,16 @@ class CustomWebServer:
                         color: #333;
                         text-align: center;
                     }
-                    .btn { padding: 5px;margin: 10px;font-size: 18px;cursor: pointer;border: none;border-radius: 5px;transition: background-color 0.3s;}
+                   .btn {
+                            background-color: #04AA6D; /* verde */
+                            border: none;
+                            color: white;
+                            padding: 15px 32px;
+                            text-align: center;
+                            text-decoration: none;
+                            display: inline-block;
+                            font-size: 16px;
+                            }
                 </style>
             </head>
             <body>
@@ -66,6 +75,7 @@ class CustomWebServer:
             
             # Bucle principal del servidor
             while True:
+                conn = None
                 try:
                     # Aceptar conexiones con timeout
                     conn, addr = self.wifi.server_socket.accept()
@@ -76,24 +86,24 @@ class CustomWebServer:
                     
                     # Acceder al valor del request para controlar el LED
                     if '/?led=on' in request:
-                        print('LED ON')
+                        print("LED ON")
                         led.value(1)
                     elif '/?led=off' in request:
-                        print('LED OFF')
+                        print("LED OFF")
                         led.value(0)
-                        
-                    # Servir el contenido HTML
-                    self.wifi.send_response(conn, self.web_html())
                     
-                    # Cerrar la conexión
-                    conn.close()
+                    response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n"
+                    conn.send(response.encode())
+                    self.wifi.send_response(conn, self.web_html())
                     
                 except Exception as e:
                     # Manejar errores de conexión
                     if 'ETIMEDOUT' not in str(e):
                         print(f"Error en conexión: {e}")
-                    
-                # Pequeña pausa para evitar sobrecarga
+                finally:
+                    if conn:
+                        conn.close()
+                
                 sleep(0.1)
                 
         except Exception as e:
@@ -101,9 +111,13 @@ class CustomWebServer:
             self.wifi.show_message(f"E: {str(e)[:16]}")
             
 def main():
-    # Crear y ejecutar el servidor web
-    server = CustomWebServer()
-    server.serve_forever()
+    try:
+        led.value(0)
+        # Crear y ejecutar el servidor web
+        server = CustomWebServer()
+        server.serve_forever()
+    except Exception as e:
+        print(f"Error al iniciar el servidor: {e}")
 
 if __name__ == "__main__":
     main()

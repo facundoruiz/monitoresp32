@@ -43,20 +43,13 @@ Una vez que el módulo SSD1306 esté cargado y el código esté en el ESP32, pue
 |--------------------------|-----------------------------------------------------------------------------|
 | `__init__`               | Inicializa la conexión WiFi y la pantalla OLED si está disponible.          |
 | `show_message`           | Muestra un mensaje en la consola y en la pantalla OLED.                     |
-| `update_status_display`  | Actualiza el display con el estado actual de las conexiones.                |
 | `start_dual_mode`        | Inicia el modo dual (AP + STA) y configura el servidor web.                 |
-| `monitor_connections`    | Monitorea el estado de las conexiones y actualiza el display.               |
 | `connect`                | Intenta conectar con credenciales guardadas o inicia el AP si falla.        |
 | `start_ap`               | Inicia el Access Point para la configuración.                               |
 | `setup_web_server`       | Configura el servidor web con manejo de timeouts.                           |
-| `check_sta_connection`   | Verifica y maneja la conexión STA.                                          |
-| `handle_client_connection` | Maneja la conexión entrante en el servidor web.                           |
-| `handle_root`            | Genera y envía la página principal HTML para elegir WiFi.                   |
-| `handle_configure`       | Maneja la configuración con protección contra intentos fallidos.            |
 | `send_response`          | Envía una respuesta HTTP.                                                   |
 | `wifi_connect`           | Intenta conectar a WiFi con limitación de intentos.                         |
-| `read_credentials`       | Lee credenciales guardadas desde el archivo JSON.                           |
-| `write_credentials`      | Guarda credenciales en un archivo JSON.                                     |
+
 
 ## Ejemplo de Uso de `show_message`
 
